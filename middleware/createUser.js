@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const jwt = require('jsonwebtoken');
 
 const createUserSchema = async(req, res, next) => { 
     const schema = Joi.object({
@@ -20,21 +21,22 @@ const createUserSchema = async(req, res, next) => {
     
 }
 
-// helper functions
+// Verify the Token
+const verifyToken = async (req, res, next) => {
+    try {
+        const token = req.body.token || req.headers["x-access-token"];
+        if (!token) {
+            res.status(400).json({ error: "A token must be provided for Authentication" });
+        }
+        jwt.verify(token, process.env.SECRET_KEY);
+        next();
+    } catch (error) {
+        console.log(error.message);
+    }
+}
 
-// function validateRequest(req, next, schema) {
-//     const options = {
-//         abortEarly: false, // include all errors
-//         allowUnknown: true, // ignore unknown props
-//         stripUnknown: true // remove unknown props
-//     };
-//     const { error, value } = schema.validate(req.body, options);
-//     if (error) {
-//         next(`Validation error: ${error.details.map(x => x.message).join(', ')}`);
-//     } else {
-//         req.body = value;
-//         next();
-//     }
-// }
 
-module.exports = createUserSchema
+module.exports = {
+    createUserSchema,
+    verifyToken
+}
