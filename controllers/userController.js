@@ -38,7 +38,7 @@ const login = async (req, res) => {
             const userEmail = await db.get().collection('users').findOne({ email: email });
             if (userEmail) {
                 const isMatch = await bcrypt.compare(password, userEmail.password);
-                const token = await jwt.sign({ _id: userEmail._id }, process.env.SECRET_KEY);
+                const token = await jwt.sign({ _id: userEmail._id }, process.env.SECRET_KEY, { expiresIn: "5h" });
                 await User.updateUser(email, token);
                 if (!isMatch) {
                     res.status(400).json({ error: "Invalid Email & Password!!" })

@@ -26,11 +26,12 @@ const verifyToken = async (req, res, next) => {
     try {
         const token = req.body.token || req.headers["x-access-token"];
         if (!token) {
-            res.status(400).json({ error: "A token must be provided for Authentication" });
+            return res.status(400).json({ error: "A token must be provided for Authentication" });
         }
         jwt.verify(token, process.env.SECRET_KEY);
         next();
     } catch (error) {
+        res.status(400).json({ error: error.message });
         console.log(error.message);
     }
 }
